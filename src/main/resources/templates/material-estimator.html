@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Estimator | BuildWise</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #172033;
+        }
+        header {
+            background: #102a43;
+            color: white;
+            padding: 20px 7%;
+        }
+        header a { color: #69d5bd; text-decoration: none; }
+        main { max-width: 1050px; margin: auto; padding: 35px 20px; }
+        .hero {
+            background: linear-gradient(120deg, #102a43, #246b83);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        .hero h2 { margin-top: 0; font-size: 30px; }
+        .hero p { line-height: 1.6; color: #e3edf5; }
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px #17203310;
+            margin-bottom: 22px;
+        }
+        .fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+        }
+        label { display: block; font-weight: bold; margin-bottom: 8px; }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+        button {
+            margin-top: 20px;
+            background: #176b61;
+            color: white;
+            padding: 13px 20px;
+            border: 0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover { background: #10554d; }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 15px;
+        }
+        .result {
+            padding: 20px;
+            border-radius: 12px;
+            background: #edf7f5;
+            border: 1px solid #d4ebe5;
+        }
+        .result h3 { margin: 0 0 12px; font-size: 17px; }
+        .quantity { font-size: 25px; font-weight: bold; color: #176b61; }
+        .cost { margin-top: 8px; color: #475467; }
+        .note { color: #667085; line-height: 1.6; font-size: 14px; }
+        #results { display: none; }
+        .error { color: #b42318; margin-top: 12px; }
+        @media (max-width: 600px) {
+            header { padding: 18px 5%; }
+            main { padding: 25px 5%; }
+            .hero { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <strong>BuildWise.</strong>
+    <span style="float:right"><a href="/">← Back to Dashboard</a></span>
+</header>
+
+<main>
+    <section class="hero">
+        <h2>🧱 Material Estimator</h2>
+        <p>Estimate preliminary quantities and costs for common construction materials using your building area.</p>
+    </section>
+
+    <section class="panel">
+        <h2>Project Details</h2>
+        <div class="fields">
+            <div>
+                <label for="length">Building length (ft)</label>
+                <input id="length" type="number" min="1" step="0.1" value="30">
+            </div>
+            <div>
+                <label for="width">Building width (ft)</label>
+                <input id="width" type="number" min="1" step="0.1" value="40">
+            </div>
+            <div>
+                <label for="floors">Number of floors</label>
+                <select id="floors">
+                    <option value="1">1 floor</option>
+                    <option value="2">2 floors</option>
+                    <option value="3">3 floors</option>
+                    <option value="4">4 floors</option>
+                </select>
+            </div>
+            <div>
+                <label for="type">Construction type</label>
+                <select id="type">
+                    <option value="standard">Standard residential</option>
+                    <option value="light">Lightweight / lower intensity</option>
+                    <option value="heavy">Higher intensity</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="calculate()">Calculate Materials</button>
+        <div id="error" class="error" role="alert"></div>
+    </section>
+
+    <section id="results" class="panel">
+        <h2>Estimated Materials</h2>
+        <p id="areaText"></p>
+        <div class="results">
+            <div class="result">
+                <h3>Cement</h3>
+                <div class="quantity" id="cementQty">—</div>
+                <div class="cost" id="cementCost"></div>
+            </div>
+            <div class="result">
+                <h3>Bricks</h3>
+                <div class="quantity" id="brickQty">—</div>
+                <div class="cost" id="brickCost"></div>
+            </div>
+            <div class="result">
+                <h3>Sand</h3>
+                <div class="quantity" id="sandQty">—</div>
+                <div class="cost" id="sandCost"></div>
+            </div>
+            <div class="result">
+                <h3>Aggregate</h3>
+                <div class="quantity" id="aggregateQty">—</div>
+                <div class="cost" id="aggregateCost"></div>
+            </div>
+            <div class="result">
+                <h3>Steel</h3>
+                <div class="quantity" id="steelQty">—</div>
+                <div class="cost" id="steelCost"></div>
+            </div>
+        </div>
+        <h2 id="totalCost"></h2>
+        <p class="note">
+            These are illustrative planning estimates only. Actual requirements depend on
+            structural design, soil conditions, wall dimensions, openings, mix design and
+            local construction practices. Confirm quantities with a qualified engineer.
+            Prices are sample values and should be updated for your local market.
+        </p>
+    </section>
+</main>
+
+<script>
+function calculate() {
+    const length = Number(document.getElementById('length').value);
+    const width = Number(document.getElementById('width').value);
+    const floors = Number(document.getElementById('floors').value);
+    const type = document.getElementById('type').value;
+    const error = document.getElementById('error');
+
+    error.textContent = '';
+
+    if (!Number.isFinite(length) || !Number.isFinite(width) ||
+        length <= 0 || width <= 0 || !Number.isInteger(floors) || floors < 1) {
+        error.textContent = 'Please enter a valid positive length and width.';
+        document.getElementById('results').style.display = 'none';
+        return;
+    }
+
+    const area = length * width * floors;
+    const factor = type === 'light' ? 0.85 : type === 'heavy' ? 1.2 : 1;
+
+    // Simplified sample rates and quantity assumptions for early-stage estimates.
+    const materials = [
+        { id: 'cement', name: 'Cement', qty: area * 0.4 * factor, unit: 'bags', rate: 420 },
+        { id: 'brick', name: 'Bricks', qty: area * 8 * factor, unit: 'bricks', rate: 10 },
+        { id: 'sand', name: 'Sand', qty: area * 0.045 * factor, unit: 'm³', rate: 1800 },
+        { id: 'aggregate', name: 'Aggregate', qty: area * 0.06 * factor, unit: 'm³', rate: 1600 },
+        { id: 'steel', name: 'Steel', qty: area * 3.5 * factor, unit: 'kg', rate: 65 }
+    ];
+
+    let total = 0;
+    const money = value => '₹' + Math.round(value).toLocaleString('en-IN');
+
+    materials.forEach(item => {
+        const quantity = Math.ceil(item.qty);
+        const cost = quantity * item.rate;
+        total += cost;
+
+        document.getElementById(item.id + 'Qty').textContent =
+            quantity.toLocaleString('en-IN') + ' ' + item.unit;
+        document.getElementById(item.id + 'Cost').textContent =
+            'Estimated cost: ' + money(cost);
+    });
+
+    document.getElementById('areaText').textContent =
+        'Total floor area: ' + area.toLocaleString('en-IN') + ' sq ft';
+    document.getElementById('totalCost').textContent =
+        'Total estimated material cost: ' + money(total);
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

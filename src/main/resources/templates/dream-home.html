@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BuildWise | Dream Home Designer</title>
+<style>
+:root{--green:#176b57;--dark:#104c40;--bg:#f3f6f4;--line:#d9e3dc;--ink:#20312c;--muted:#65756d}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:24px 5%;color:#fff;background:linear-gradient(120deg,var(--dark),#27856c)}header h1{margin:0 0 8px}header p{margin:0;line-height:1.5;color:#e0f2e9}
+main{max-width:1500px;margin:auto;padding:20px}.columns{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:18px;align-items:start}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px #102b2010}
+h2{font-size:19px;margin:0 0 14px}h3{font-size:14px;margin:18px 0 9px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:700;color:#50635a;margin-bottom:5px}
+input,select,textarea{width:100%;padding:9px;border:1px solid #ccd9d0;border-radius:8px;background:#fff;font:inherit;font-size:14px;color:var(--ink)}
+input[type=color]{height:40px;padding:3px}input[type=checkbox]{width:auto}
+button{border:0;border-radius:8px;padding:10px 13px;font-weight:700;cursor:pointer;font-size:13px}.primary{background:var(--green);color:#fff}.secondary{background:#e8f1eb;color:var(--dark)}.danger{background:#f9e9e6;color:#8e3024}
+.actions,.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tab{background:#e8efea;color:var(--ink)}.tab.active{background:var(--green);color:white}
+.help{font-size:12px;line-height:1.55;color:var(--muted)}.checkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check{display:flex;align-items:center;gap:8px;background:#f5f8f5;padding:9px;border-radius:8px;border:1px solid var(--line)}.check label{margin:0;color:var(--ink)}
+.preview{overflow:auto;background:#fbfcfa;border:1px solid var(--line);border-radius:10px;padding:8px}#plan{display:block;width:100%;min-width:460px;height:auto}
+#threeHost{height:420px;background:linear-gradient(#eaf3f7,#f7f4eb);border-radius:10px;overflow:hidden}#threeHost canvas{display:block;width:100%;height:100%}
+.status{padding:12px;background:#edf6ef;border-left:4px solid var(--green);border-radius:7px;font-size:13px;line-height:1.55;margin-top:10px}.status.warn{background:#fff4e4;border-color:#d28a22}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:11px;background:#f0f6f1;border-radius:8px}.stat small{display:block;color:var(--muted);margin-bottom:6px}.stat strong{font-size:17px}
+.room-row{border:1px solid var(--line);border-radius:10px;padding:12px;margin:9px 0}.room-row-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.room-row-head strong{font-size:13px}.room-row .fields{margin-top:10px}
+footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
+@media(max-width:900px){.columns{grid-template-columns:1fr}}@media(max-width:480px){main{padding:10px}.card{padding:13px}#threeHost{height:320px}}
+</style>
+</head>
+<body>
+<header><h1>BuildWise Dream Home Designer</h1><p>Customize your Indian home concept, edit room dimensions, and preview a 2D plan and 3D exterior.</p></header>
+<main><div class="columns">
+<section>
+<div class="card"><h2>1. Plot & planning</h2><div class="fields">
+<div><label for="plotW">Plot width (m)</label><input id="plotW" type="number" min="6" max="40" step=".5" value="12"></div>
+<div><label for="plotL">Plot length (m)</label><input id="plotL" type="number" min="8" max="50" step=".5" value="18"></div>
+<div><label for="floors">Number of floors</label><select id="floors"><option value="1">Ground only</option><option value="2" selected>Ground + first</option><option value="3">Three floors</option></select></div>
+<div><label for="orientation">Road side</label><select id="orientation"><option>North</option><option>South</option><option>East</option><option>West</option></select></div>
+<div><label for="setback">Side/rear setback (m)</label><input id="setback" type="number" min="0" max="4" step=".25" value="1"></div>
+<div><label for="frontYard">Front yard depth (m)</label><input id="frontYard" type="number" min="0" max="8" step=".5" value="3"></div>
+<div class="full"><label for="layoutStyle">Planning preference</label><select id="layoutStyle"><option value="modern">Modern practical</option><option value="vastu">Vastu-inspired preference</option><option value="traditional">Traditional Indian</option><option value="open">Open-plan living</option></select></div>
+</div><div class="actions"><button class="primary" id="applyPlanning">Apply Plot &amp; Planning</button></div><p class="help">These are concept dimensions. Confirm required setbacks and regulations for your location with a qualified professional.</p></div>
+
+<div class="card"><h2>2. Room requirements</h2><div class="fields">
+<div><label for="bedrooms">Bedrooms</label><input id="bedrooms" type="number" min="1" max="8" value="3"></div>
+<div><label for="bathrooms">Bathrooms</label><input id="bathrooms" type="number" min="1" max="8" value="2"></div>
+<div><label for="living">Living rooms</label><input id="living" type="number" min="0" max="2" value="1"></div>
+<div><label for="kitchen">Kitchens</label><input id="kitchen" type="number" min="0" max="2" value="1"></div>
+<div><label for="dining">Dining rooms</label><input id="dining" type="number" min="0" max="2" value="1"></div>
+<div><label for="pooja">Pooja rooms</label><input id="pooja" type="number" min="0" max="2" value="1"></div>
+<div><label for="stairs">Staircases</label><input id="stairs" type="number" min="0" max="2" value="1"></div>
+<div><label for="utility">Utility areas</label><input id="utility" type="number" min="0" max="2" value="1"></div>
+<div><label for="study">Study rooms</label><input id="study" type="number" min="0" max="3" value="0"></div>
+<div><label for="balconies">Balconies</label><input id="balconies" type="number" min="0" max="4" value="1"></div>
+</div><h3>Outdoor features</h3><div class="checkgrid">
+<div class="check"><input id="parking" type="checkbox" checked><label for="parking">Car parking</label></div>
+<div class="check"><input id="garden" type="checkbox" checked><label for="garden">Garden</label></div>
+<div class="check"><input id="courtyard" type="checkbox"><label for="courtyard">Courtyard</label></div>
+<div class="check"><input id="sitout" type="checkbox" checked><label for="sitout">Sit-out</label></div>
+</div><p class="help">Change room counts, then click Generate / Reset Rooms. You can edit each room separately below.</p><div class="actions"><button class="primary" id="generate">Apply Room Requirements / Generate</button></div></div>
+
+<div class="card"><h2>3. Edit individual rooms</h2><p class="help">Set each room's floor, width and length. Click Apply Customizations to refresh the floor plan and 3D preview. Rooms automatically resize to fill the available footprint with no artificial gaps. Entered dimensions guide room proportions.</p><div id="roomEditor"></div><div class="actions"><button class="primary" id="apply">Apply Customizations</button><button class="secondary" id="resetRooms">Reset room dimensions</button></div></div>
+
+<div class="card"><h2>4. Exterior & colors</h2><div class="fields">
+<div class="full"><label for="style">Exterior style</label><select id="style"><option value="modern">Modern Indian</option><option value="traditional">Traditional</option><option value="contemporary">Contemporary</option><option value="minimal">Minimalist</option><option value="tropical">Tropical</option></select></div>
+<div><label for="roof">Roof type</label><select id="roof"><option value="flat">Flat roof</option><option value="gable">Gable roof</option></select></div>
+<div><label for="height">Floor height (m)</label><input id="height" type="number" min="2.6" max="4" step=".1" value="3"></div>
+<div><label for="wall">Wall color</label><input id="wall" type="color" value="#eadcc5"></div>
+<div><label for="trim">Trim color</label><input id="trim" type="color" value="#ffffff"></div>
+<div><label for="roofColor">Roof color</label><input id="roofColor" type="color" value="#514b46"></div>
+<div><label for="door">Door color</label><input id="door" type="color" value="#70472c"></div>
+<div><label for="glass">Window color</label><input id="glass" type="color" value="#76b9d4"></div>
+</div><div class="actions"><button class="primary" id="applyExterior">Apply Exterior</button><button class="secondary" id="randomColors">Try Color Palette</button></div></div>
+
+<div class="card"><h2>5. Extra requirements</h2><label for="notes">Your notes</label><textarea id="notes" rows="4" placeholder="Example: parents' bedroom downstairs, kitchen near dining, private upstairs balcony..."></textarea><div class="actions"><button class="primary" id="applyNotes">Apply Extra Requirements</button><button class="secondary" id="downloadJson">Download settings (JSON)</button><button class="secondary" id="downloadSvg">Download plan (SVG)</button><button class="secondary" id="print">Print</button></div></div>
+</section>
+
+<section>
+<div class="card"><h2>Design summary</h2><div class="stats"><div class="stat"><small>Plot area</small><strong id="plotStat">216 m²</strong></div><div class="stat"><small>Estimated footprint</small><strong id="footStat">—</strong></div><div class="stat"><small>Floors</small><strong id="floorStat">2</strong></div></div><div id="status" class="status">Generate a design to begin.</div></div>
+<div class="card"><h2>2D site & floor plan</h2><div class="tabs" id="floorTabs"></div><div class="preview"><svg id="plan" viewBox="0 0 900 700" role="img" aria-label="Conceptual floor plan"></svg></div><p class="help">Rooms automatically resize to tile the available building footprint without artificial gaps. Entered dimensions guide relative room proportions. Concept only, not a construction drawing.</p></div>
+<div class="card"><h2>3D exterior preview</h2><div class="actions"><button class="secondary" id="pause">Pause rotation</button><button class="secondary" id="resetView">Reset view</button></div><div id="threeHost"></div><p class="help">Drag to rotate and use the mouse wheel to zoom. This procedural 3D preview is illustrative, not a detailed architectural model.</p></div>
+<div class="card"><h2>Room list & validation</h2><div id="summary" class="help"></div></div>
+</section>
+</div></main>
+<footer>BuildWise • Conceptual planning tool • Verify dimensions, structure, ventilation and local regulations with a qualified professional.</footer>
+
+<script type="module" th:inline="none">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+var $ = function(id){return document.getElementById(id);};
+var fmt = function(v){return Number(v).toFixed(1);};
+var esc = function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c];});};
+var clamp = function(v,lo,hi){return Math.max(lo,Math.min(hi,Number(v)||lo));};
+var specs={
+ living:{label:'Living room',w:4.2,h:4,color:'#f4e5c7'},
+ bedroom:{label:'Bedroom',w:3.3,h:3.4,color:'#dceafa'},
+ bathroom:{label:'Bathroom',w:1.5,h:2.2,color:'#d5edf0'},
+ kitchen:{label:'Kitchen',w:2.8,h:3,color:'#f6d9c4'},
+ dining:{label:'Dining room',w:3,h:3,color:'#e5e0f5'},
+ pooja:{label:'Pooja room',w:1.5,h:1.8,color:'#f8edc8'},
+ stairs:{label:'Staircase',w:2.3,h:3.8,color:'#d8dedb'},
+ utility:{label:'Utility area',w:1.8,h:2,color:'#d9ece0'},
+ study:{label:'Study room',w:2.6,h:2.8,color:'#e5e7fb'},
+ balcony:{label:'Balcony',w:1.5,h:3,color:'#d7e8d2'}
+};
+var model=null, selectedFloor=0, scene=null, camera=null, renderer=null, house=null, spinning=true, dragging=false, lastX=0,lastY=0;
+function prefs(){return {
+ W:clamp($('plotW').value,6,40),L:clamp($('plotL').value,8,50),floors:clamp($('floors').value,1,3),
+ orientation:$('orientation').value,setback:clamp($('setback').value,0,4),front:clamp($('frontYard').value,0,8),layout:$('layoutStyle').value,
+ bedrooms:clamp($('bedrooms').value,1,8),bathrooms:clamp($('bathrooms').value,1,8),living:clamp($('living').value,0,2),
+ kitchen:clamp($('kitchen').value,0,2),dining:clamp($('dining').value,0,2),pooja:clamp($('pooja').value,0,2),
+ stairs:clamp($('stairs').value,0,2),utility:clamp($('utility').value,0,2),study:clamp($('study').value,0,3),balconies:clamp($('balconies').value,0,4),
+ parking:$('parking').checked,garden:$('garden').checked,courtyard:$('courtyard').checked,sitout:$('sitout').checked,
+ style:$('style').value,roof:$('roof').value,height:clamp($('height').value,2.6,4),wall:$('wall').value,trim:$('trim').value,
+ roofColor:$('roofColor').value,door:$('door').value,glass:$('glass').value,notes:$('notes').value
+};}
+function newRooms(p){
+ var list=[],id=1;
+ function add(type,count){for(var i=0;i<count;i++){var s=specs[type];list.push({id:id++,type:type,label:count>1?s.label+' '+(i+1):s.label,w:s.w,h:s.h,floor:0});}}
+ add('living',p.living);add('dining',p.dining);add('kitchen',p.kitchen);add('pooja',p.pooja);
+ add('bedroom',p.bedrooms);add('bathroom',p.bathrooms);add('stairs',p.stairs);add('utility',p.utility);add('study',p.study);add('balcony',p.balconies);
+ var bi=0;
+ list.forEach(function(r){if(r.type==='bedroom'){if(p.floors>1&&bi>0)r.floor=1;bi++;}
+ if((r.type==='balcony'||r.type==='study')&&p.floors>1)r.floor=1;});
+ if(p.floors>1){var g=list.filter(function(r){return r.floor===0;});g.forEach(function(r,i){if(i>=7&&['bedroom','bathroom','stairs','utility'].indexOf(r.type)>=0)r.floor=1;});}
+ return list;
+}
+function status(msg,warn){$('status').textContent=msg;$('status').classList.toggle('warn',!!warn);}
+function makeEditor(){
+ var root=$('roomEditor');root.innerHTML='';
+ model.rooms.forEach(function(r){
+  var box=document.createElement('div');box.className='room-row';
+  var head=document.createElement('div');head.className='room-row-head';
+  var title=document.createElement('strong');title.textContent=r.label;
+  var remove=document.createElement('button');remove.className='danger';remove.type='button';remove.textContent='Remove';remove.setAttribute('data-remove',r.id);
+  head.appendChild(title);head.appendChild(remove);box.appendChild(head);
+  var fields=document.createElement('div');fields.className='fields';
+  function field(label,prop,kind,options){
+   var wrap=document.createElement('div'),lab=document.createElement('label'),input;
+   lab.textContent=label;wrap.appendChild(lab);
+   if(kind==='select'){input=document.createElement('select');for(var i=0;i<model.p.floors;i++){var op=document.createElement('option');op.value=i;op.textContent=i===0?'Ground floor':'Floor '+(i+1);input.appendChild(op);}input.value=r[prop];}
+   else{input=document.createElement('input');input.type='number';input.min=1;input.max=prop==='w'?10:12;input.step='.1';input.value=r[prop];}
+   input.setAttribute('data-room',r.id);input.setAttribute('data-field',prop);wrap.appendChild(input);fields.appendChild(wrap);
+  }
+  field('Floor','floor','select');field('Width (m)','w','number');field('Length (m)','h','number');box.appendChild(fields);root.appendChild(box);
+ });
+ root.querySelectorAll('[data-room]').forEach(function(el){el.addEventListener('change',function(){
+  var r=model.rooms.find(function(x){return x.id===Number(el.getAttribute('data-room'));});if(!r)return;
+  var f=el.getAttribute('data-field');r[f]=f==='floor'?clamp(el.value,0,model.p.floors-1):clamp(el.value,1,f==='w'?10:12);
+ });});
+ root.querySelectorAll('[data-remove]').forEach(function(el){el.addEventListener('click',function(){
+  model.rooms=model.rooms.filter(function(r){return r.id!==Number(el.getAttribute('data-remove'));});makeEditor();status('Room removed. Click Apply Customizations to refresh the design.');
+ });});
+}
+function generate(){var p=prefs();if(p.W<=2*p.setback+3){status('Plot width is too small for the selected setbacks. Increase plot width or reduce setbacks.',true);return;}
+ if(p.L<=p.front+p.setback+4){status('Front yard and setbacks leave too little depth. Reduce them or increase plot length.',true);return;}
+ model={p:p,rooms:newRooms(p),created:new Date().toISOString()};selectedFloor=0;makeEditor();drawAll();}
+function layoutRooms(rooms,usableW,usableD){
+ // Flexible tiling: rooms fill the entire usable rectangle with shared edges.
+ // Requested dimensions guide each room's relative width/height, not fixed gaps.
+ if(!rooms.length)return {placed:[],totalDepth:0,overflowW:false,overflowD:false};
+ usableW=Math.max(.1,usableW);usableD=Math.max(.1,usableD);
+ var priority={living:0,dining:1,kitchen:2,pooja:3,bedroom:4,bathroom:5,stairs:6,study:7,utility:8,balcony:9};
+ var sorted=rooms.slice().sort(function(a,b){return (priority[a.type]??99)-(priority[b.type]??99);});
+ // Choose row count to match the footprint's aspect ratio and number of rooms.
+ var targetRows=Math.max(1,Math.min(sorted.length,Math.round(Math.sqrt(sorted.length*usableD/usableW))));
+ var rows=[],remaining=sorted.slice(),remainingCount=sorted.length;
+ for(var ri=0;ri<targetRows;ri++){
+   var rowsLeft=targetRows-ri;
+   var take=Math.ceil(remainingCount/rowsLeft);
+   rows.push(remaining.splice(0,take));remainingCount=remaining.length;
+ }
+ var rowWeights=rows.map(function(row){return row.reduce(function(sum,r){return sum+Math.max(.5,Number(r.h)||1);},0)/row.length;});
+ var weightTotal=rowWeights.reduce(function(a,b){return a+b;},0)||rows.length;
+ var y=0,placed=[];
+ rows.forEach(function(row,ri){
+   var rowH=ri===rows.length-1?usableD-y:usableD*rowWeights[ri]/weightTotal;
+   var widthWeights=row.map(function(r){return Math.max(.5,Number(r.w)||1);});
+   var widthTotal=widthWeights.reduce(function(a,b){return a+b;},0)||row.length;
+   var x=0;
+   row.forEach(function(r,ci){
+     var drawW=ci===row.length-1?usableW-x:usableW*widthWeights[ci]/widthTotal;
+     placed.push(Object.assign({},r,{x:x,y:y,drawW:drawW,drawH:rowH}));x+=drawW;
+   });
+   y+=rowH;
+ });
+ return {placed:placed,totalDepth:usableD,overflowW:false,overflowD:false};
+}
+function drawPlan(){
+ var p=model.p,svg=$('plan'),VW=900,VH=700,margin=72,scale=Math.min((VW-2*margin)/p.W,(VH-2*margin)/p.L);
+ var pw=p.W*scale,pl=p.L*scale,ox=(VW-pw)/2,oy=80+(VH-160-pl)/2;
+ var front=Math.min(p.front,p.L*.6),usableW=p.W-2*p.setback,usableD=p.L-front-p.setback;
+ var bx=ox+p.setback*scale,by=oy+front*scale,houseW=Math.max(1,usableW),houseD=Math.max(1,usableD);
+ var s='<rect width="'+VW+'" height="'+VH+'" fill="#fbfcfa"/><text x="450" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#20312c">BuildWise — '+(selectedFloor===0?'Ground floor':'Floor '+(selectedFloor+1))+'</text>';
+ s+='<rect x="'+ox+'" y="'+oy+'" width="'+pw+'" height="'+pl+'" fill="#e8efe5" stroke="#263d33" stroke-width="3"/><text x="450" y="'+(oy-12)+'" text-anchor="middle" font-size="12" fill="#40554b">Plot '+fmt(p.W)+' m × '+fmt(p.L)+' m</text>';
+ s+='<rect x="'+(ox+2)+'" y="'+(oy+2)+'" width="'+(pw-4)+'" height="'+Math.max(0,front*scale-4)+'" fill="'+(p.garden?'#d4e8c9':'#edf1eb')+'" stroke="#a0b5a2"/>';
+ s+='<text x="450" y="'+(oy+Math.max(17,front*scale/2))+'" text-anchor="middle" font-size="12" fill="#356a40">'+(p.garden?'Garden / open yard':p.sitout?'Open yard / sit-out':'Front open area')+'</text>';
+ if(p.parking){var carW=Math.min(2.8,p.W*.27)*scale,carD=Math.min(5,Math.max(2,front-.25))*scale;
+ s+='<rect x="'+(ox+pw-carW-8)+'" y="'+(oy+5)+'" width="'+carW+'" height="'+carD+'" rx="3" fill="#d7dadd" stroke="#66766d"/><text x="'+(ox+pw-carW/2-8)+'" y="'+(oy+carD/2+8)+'" text-anchor="middle" font-size="10" fill="#39413d" transform="rotate(-90 '+(ox+pw-carW/2-8)+' '+(oy+carD/2+8)+')">PARKING</text>';}
+ var rooms=model.rooms.filter(function(r){return r.floor===selectedFloor;}),layout=layoutRooms(rooms,houseW,houseD);
+ s+='<rect x="'+bx+'" y="'+by+'" width="'+(houseW*scale)+'" height="'+(houseD*scale)+'" fill="#fffdf7" stroke="#263d33" stroke-width="3"/>';
+ layout.placed.forEach(function(r){var x=bx+r.x*scale,y=by+r.y*scale,w=r.drawW*scale,h=r.drawH*scale;
+ s+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+(specs[r.type]||{}).color+'" stroke="#52665e" stroke-width="1.5"/>';
+ var fs=Math.max(8,Math.min(13,w/8,h/5));
+ if(w>35&&h>30)s+='<text x="'+(x+w/2)+'" y="'+(y+h/2-3)+'" text-anchor="middle" font-size="'+fs+'" fill="#263d33">'+esc(r.label)+'</text><text x="'+(x+w/2)+'" y="'+(y+h/2+fs+3)+'" text-anchor="middle" font-size="'+Math.max(7,fs-2)+'" fill="#52665e">'+fmt(r.drawW)+' × '+fmt(r.drawH)+' m (fitted)</text>';
+ else s+='<text x="'+(x+w/2)+'" y="'+(y+h/2)+'" text-anchor="middle" font-size="8" fill="#263d33">'+esc(r.label)+'</text>';
+ });
+ var overflow=layout.overflowW||layout.overflowD;
+ if(!rooms.length)s+='<text x="450" y="350" text-anchor="middle" fill="#64756f">No rooms assigned to this floor</text>';
+ s+='<text x="'+(ox+pw)+'" y="'+(oy+pl+23)+'" text-anchor="end" font-size="12" fill="#40554b">Front / road: '+esc(p.orientation)+'</text><text x="450" y="681" text-anchor="middle" font-size="11" fill="#64756f">Concept only • Not for construction</text>';
+ svg.innerHTML=s;
+ $('floorTabs').innerHTML='';
+ for(var i=0;i<p.floors;i++){var b=document.createElement('button');b.className='tab'+(i===selectedFloor?' active':'');b.textContent=i===0?'Ground floor':'Floor '+(i+1);b.onclick=(function(f){return function(){selectedFloor=f;drawAll();};})(i);$('floorTabs').appendChild(b);}
+ var plotArea=p.W*p.L,footW=p.W-2*p.setback,footD=p.L-p.front-p.setback;
+ $('plotStat').textContent=fmt(plotArea)+' m²';$('footStat').textContent=fmt(Math.max(0,footW)*Math.max(0,footD))+' m²';$('floorStat').textContent=p.floors;
+ var area=rooms.reduce(function(sum,r){return sum+r.w*r.h;},0),msgs=[];
+ if(!rooms.length)msgs.push('No rooms are assigned to this floor. Add rooms or choose another floor.');
+ if(!p.parking)msgs.push('Parking is off; the front open area can be used for garden, sit-out or access.');
+ status(msgs.length?msgs.join(' '):'Flexible layout applied: rooms tile the usable footprint without artificial gaps. Entered dimensions guide proportions; fitted room sizes may differ. Doorways, circulation, plumbing, ventilation and structure still need professional review.',msgs.length>0);
+ $('summary').innerHTML=model.rooms.map(function(r){return '<p><b>'+esc(r.label)+'</b> — '+(r.floor===0?'Ground floor':'Floor '+(r.floor+1))+' — '+fmt(r.w)+' × '+fmt(r.h)+' m; area '+fmt(r.w*r.h)+' m²</p>';}).join('')||'No rooms configured.';
+}
+function init3D(){
+ var host=$('threeHost');scene=new THREE.Scene();scene.background=new THREE.Color('#eaf3f7');
+ camera=new THREE.PerspectiveCamera(42,1,.1,300);camera.position.set(18,14,22);
+ renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;host.innerHTML='';host.appendChild(renderer.domElement);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x7b897c,2));var sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(15,25,15);sun.castShadow=true;scene.add(sun);
+ var ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:'#dce8d7'}));ground.rotation.x=-Math.PI/2;ground.position.y=-.12;scene.add(ground);
+ house=new THREE.Group();scene.add(house);
+ function resize(){var w=host.clientWidth||700,h=host.clientHeight||420;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);}
+ if(window.ResizeObserver)new ResizeObserver(resize).observe(host);else window.addEventListener('resize',resize);resize();
+ renderer.domElement.addEventListener('pointerdown',function(e){dragging=true;lastX=e.clientX;lastY=e.clientY;});
+ renderer.domElement.addEventListener('pointermove',function(e){if(!dragging)return;house.rotation.y+=(e.clientX-lastX)*.008;house.rotation.x=Math.max(-.4,Math.min(.3,house.rotation.x+(e.clientY-lastY)*.003));lastX=e.clientX;lastY=e.clientY;});
+ window.addEventListener('pointerup',function(){dragging=false;});
+ renderer.domElement.addEventListener('wheel',function(e){e.preventDefault();camera.position.multiplyScalar(e.deltaY>0?1.08:.92);camera.position.clampLength(7,70);},{passive:false});
+ function animate(){requestAnimationFrame(animate);if(spinning&&!dragging)house.rotation.y+=.002;renderer.render(scene,camera);}animate();
+}
+function material(color,rough){return new THREE.MeshStandardMaterial({color:color,roughness:rough===undefined?.8:rough});}
+function box(parent,w,h,d,x,y,z,mat){var o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
+function clearHouse(){while(house.children.length){var o=house.children[0];house.remove(o);o.traverse(function(n){if(n.geometry)n.geometry.dispose();if(n.material){if(Array.isArray(n.material))n.material.forEach(function(m){m.dispose();});else n.material.dispose();}});}}
+function updateHouse(){
+ if(!scene||!model)return;clearHouse();var p=model.p,w=Math.max(5,Math.min(15,p.W-2*p.setback)),d=Math.max(5,Math.min(18,p.L-p.front-p.setback)),fh=p.height,total=fh*p.floors;
+ var wall=material(p.wall),trim=material(p.trim),roof=material(p.roofColor),door=material(p.door),glass=material(p.glass,.25),base=material('#b9b9af');
+ box(house,w+.4,.22,d+.4,0,0,0,base);
+ for(var f=0;f<p.floors;f++){
+  var y=.12+f*fh;box(house,w,fh-.12,d,0,y+(fh-.12)/2,0,wall);box(house,w+.12,.12,d+.12,0,y+fh-.12,0,trim);
+  var count=Math.max(2,Math.floor(w/2.4));
+  for(var i=0;i<count;i++){var x=-w/2+w*(i+.5)/count,ww=Math.min(1.25,w/count*.5),wh=1.15,wy=y+fh*.57;
+   box(house,ww,wh,.08,x,wy,d/2+.05,glass);box(house,.06,wh+.1,.11,x-ww/2,wy,d/2+.05,trim);box(house,.06,wh+.1,.11,x+ww/2,wy,d/2+.05,trim);box(house,ww+.12,.06,.11,x,wy+wh/2,d/2+.05,trim);
+   box(house,ww,wh,.08,x,wy,-d/2-.05,glass);
+  }
+  for(var side=-1;side<=1;side+=2)for(var j=0;j<2;j++)box(house,.08,1,1,side*(w/2+.05),y+fh*.55,-d/2+d*(j+1)/3,glass);
+  if(f===0)box(house,1.05,2.15,.12,-w*.2,y+1.08,d/2+.07,door);
+  if(f>0&&p.balconies>0){var bw=Math.min(w*.4,4);box(house,bw,.14,1.2,w*.17,y+.45,d/2+.65,trim);box(house,bw,.08,.07,w*.17,y+1.05,d/2+1.2,trim);for(var k=0;k<6;k++)box(house,.05,.55,.05,w*.17-bw/2+bw*k/5,y+.78,d/2+1.2,trim);}
+  if(p.style==='traditional')box(house,w+.3,.14,.24,0,y+fh-.3,d/2+.08,roof);
+  if(p.style==='contemporary')box(house,w*.65,.14,.3,w*.12,y+fh-.35,d/2+.12,roof);
+ }
+ if(p.roof==='flat'){box(house,w+.35,.2,d+.35,0,total+.2,0,roof);box(house,w+.35,.4,.1,0,total+.48,d/2+.16,trim);box(house,.1,.4,d+.35,w/2+.16,total+.48,0,trim);box(house,.1,.4,d+.35,-w/2-.16,total+.48,0,trim);}
+ else{var ridge=Math.min(2,d*.12),geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute([-w/2,total,-d/2,w/2,total,-d/2,0,total+ridge,-d/2,-w/2,total,d/2,w/2,total,d/2,0,total+ridge,d/2],3));geo.setIndex([0,1,2,3,5,4,0,2,5,0,5,3,1,4,5,1,5,2]);geo.computeVertexNormals();house.add(new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:p.roofColor,side:THREE.DoubleSide,roughness:.8})));}
+ box(house,2,.12,.6,-w*.2,.2,d/2+.35,trim);box(house,2.4,.1,1,-w*.2,.1,d/2+.9,base);
+ if(p.parking)box(house,Math.min(3,w*.3),.04,4,w*.3,.02,d/2+2.5,material('#aeb5b1'));
+ if(p.garden)for(var t=0;t<4;t++){var tx=-w*.38+t*w*.22;box(house,.1,.65,.1,tx,.33,d/2+2,material('#7d6043'));var leaves=new THREE.Mesh(new THREE.SphereGeometry(.48,10,8),material('#5e9563'));leaves.position.set(tx,.95,d/2+2);house.add(leaves);}
+ house.rotation.set(-.18,.55,0);camera.position.set(Math.max(w,d)*1.25,Math.max(w,d)*.9,Math.max(w,d)*1.5);camera.lookAt(0,total*.4,0);
+}
+function drawAll(){drawPlan();updateHouse();}
+function download(name,text,type){var blob=new Blob([text],{type:type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
+$('generate').addEventListener('click',generate);
+$('applyPlanning').addEventListener('click',function(){var p=prefs();if(p.W<=2*p.setback+3||p.L<=p.front+p.setback+4){status('The selected plot dimensions and setbacks leave too little building space. Adjust them and apply again.',true);return;}if(!model){model={p:p,rooms:newRooms(p),created:new Date().toISOString()};}else{model.p=p;model.rooms.forEach(function(r){r.floor=clamp(r.floor,0,p.floors-1);});}selectedFloor=Math.min(selectedFloor,p.floors-1);makeEditor();drawAll();status('Plot and planning preferences applied to the design.');});
+$('applyNotes').addEventListener('click',function(){
+ if(!model){generate();if(!model)return;}
+ var raw=$('notes').value.trim(),txt=raw.toLowerCase(),changes=[];
+ model.p.notes=raw;
+ // Interpret common room requests and apply them to the actual plan.
+ var rules=[
+  {type:'balcony',words:['balcony','balconies'],negative:['no balcony','without balcony','remove balcony']},
+  {type:'study',words:['study room','study area','study'],negative:['no study','without study','remove study']},
+  {type:'pooja',words:['pooja room','prayer room','puja room'],negative:['no pooja','without pooja','remove pooja']},
+  {type:'utility',words:['utility room','utility area','laundry room'],negative:['no utility','without utility','remove utility']},
+  {type:'dining',words:['dining room','dining area'],negative:['no dining','without dining','remove dining']},
+  {type:'kitchen',words:['kitchen'],negative:['no kitchen','without kitchen','remove kitchen']},
+  {type:'living',words:['living room','living area','lounge'],negative:['no living room','remove living room']},
+  {type:'bedroom',words:['extra bedroom','additional bedroom','guest room','guest bedroom'],negative:['no extra bedroom','remove bedroom']}
+ ];
+ rules.forEach(function(rule){
+  var requested=rule.words.some(function(w){return txt.indexOf(w)>=0;});
+  var neg=rule.negative.some(function(w){return txt.indexOf(w)>=0;});
+  var existing=model.rooms.filter(function(r){return r.type===rule.type;});
+  if(neg&&existing.length){
+   // Only remove the optional room type when the requirement explicitly says to remove it.
+   model.rooms=model.rooms.filter(function(r){return r.type!==rule.type;});
+   changes.push('removed '+specs[rule.type].label.toLowerCase());
+  }else if(requested&&!neg){
+   var sizeWords=txt.indexOf('larger')>=0||txt.indexOf('bigger')>=0||txt.indexOf('spacious')>=0;
+   if(existing.length===0){
+    var id=model.rooms.reduce(function(m,r){return Math.max(m,r.id);},0)+1;
+    model.rooms.push({id:id,type:rule.type,label:specs[rule.type].label,w:specs[rule.type].w,h:specs[rule.type].h,floor:(model.p.floors>1&&(rule.type==='balcony'||rule.type==='study')?1:0)});
+    changes.push('added '+specs[rule.type].label.toLowerCase());
+   }else if(sizeWords){
+    existing[0].w=Math.min(10,existing[0].w*1.2);existing[0].h=Math.min(12,existing[0].h*1.2);
+    changes.push('increased '+specs[rule.type].label.toLowerCase()+' size');
+   }
+  }
+ });
+ if(txt.indexOf('two floors')>=0||txt.indexOf('two storeys')>=0) {model.p.floors=2;$('floors').value=2;changes.push('set two floors');}
+ if(txt.indexOf('three floors')>=0||txt.indexOf('three storeys')>=0) {model.p.floors=3;$('floors').value=3;changes.push('set three floors');}
+ model.rooms.forEach(function(r){r.floor=clamp(r.floor,0,model.p.floors-1);});
+ makeEditor();drawAll();
+ $('requirementsSaved').textContent=changes.length?'Applied to plan: '+changes.join(', ')+'.':'Saved. For automatic changes, try requests such as “add a balcony”, “include a study room”, or “make the kitchen larger”.';
+ $('requirementsSaved').classList.remove('warn');
+ status(changes.length?'Extra requirements applied to the floor plan and 3D preview.':'Requirement saved, but no supported design change was detected. Try a specific room request.',!changes.length);
+});
+$('apply').addEventListener('click',function(){if(!model)return;model.p=prefs();model.rooms.forEach(function(r){r.floor=clamp(r.floor,0,model.p.floors-1);});selectedFloor=Math.min(selectedFloor,model.p.floors-1);makeEditor();drawAll();status('Room customizations applied. Rooms automatically fit the available footprint; entered dimensions guide their proportions.');});
+$('resetRooms').addEventListener('click',function(){if(!model)return;model.rooms=newRooms(model.p);makeEditor();drawAll();status('Room dimensions and floor assignments reset to defaults.');});
+$('applyExterior').addEventListener('click',function(){if(!model)return;model.p=prefs();drawAll();status('Exterior settings applied to the 3D preview.');});
+$('randomColors').addEventListener('click',function(){var palettes=[['#eadcc5','#ffffff','#514b46','#70472c','#76b9d4'],['#e5e7eb','#ffffff','#333b46','#604a3b','#6bb6cf'],['#d9e6dc','#ffffff','#40574b','#72513a','#8bc6d9'],['#f1dfd2','#fff7ed','#6b4f4f','#5d4037','#83b5ca']];var a=palettes[Math.floor(Math.random()*palettes.length)];['wall','trim','roofColor','door','glass'].forEach(function(id,i){$(id).value=a[i];});if(model){model.p=prefs();drawAll();}});
+$('pause').addEventListener('click',function(){spinning=!spinning;$('pause').textContent=spinning?'Pause rotation':'Resume rotation';});
+$('resetView').addEventListener('click',function(){if(house){house.rotation.set(-.18,.55,0);updateHouse();}});
+$('downloadJson').addEventListener('click',function(){if(!model)return;model.p=prefs();download('BuildWise-Design.json',JSON.stringify(model,null,2),'application/json');});
+$('downloadSvg').addEventListener('click',function(){var svg=$('plan').cloneNode(true);svg.setAttribute('xmlns','http://www.w3.org/2000/svg');download('BuildWise-Floor-Plan.svg',new XMLSerializer().serializeToString(svg),'image/svg+xml');});
+$('print').addEventListener('click',function(){window.print();});
+init3D();generate();
+</script>
+</body>
+</html>

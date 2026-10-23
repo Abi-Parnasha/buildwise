@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildWise | Smart Construction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #142b4a;
+            --blue: #245a78;
+            --green: #176b61;
+            --mint: #69d5bd;
+            --gold: #f5b942;
+            --text: #172033;
+            --muted: #667085;
+            --background: #f3f6fb;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        header {
+            background: var(--navy);
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        header h1 span {
+            color: var(--mint);
+        }
+
+        .header-label {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #e1edf5;
+        }
+
+        .hero {
+            min-height: 450px;
+            padding: 75px 7%;
+            display: flex;
+            align-items: center;
+            color: white;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(12, 31, 53, 0.94),
+                    rgba(20, 43, 74, 0.76),
+                    rgba(20, 43, 74, 0.30)
+                ),
+                url("https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2000&q=85")
+                center/cover no-repeat;
+        }
+
+        .hero-content {
+            max-width: 720px;
+        }
+
+        .tag {
+            color: var(--mint);
+            font-weight: bold;
+            letter-spacing: 3px;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .hero h2 {
+            font-size: clamp(34px, 5vw, 56px);
+            line-height: 1.12;
+            margin: 0 0 20px;
+        }
+
+        .hero p {
+            font-size: 17px;
+            line-height: 1.8;
+            max-width: 620px;
+            color: #e6edf5;
+            margin-bottom: 28px;
+        }
+
+        .hero-link {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--navy);
+            text-decoration: none;
+            padding: 14px 23px;
+            border-radius: 9px;
+            font-weight: bold;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .hero-link:hover {
+            transform: translateY(-3px);
+            background: #ffd16b;
+        }
+
+        main {
+            padding: 55px 7%;
+        }
+
+        .section-heading {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .section-heading .eyebrow {
+            color: var(--green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .section-heading h2 {
+            font-size: clamp(27px, 4vw, 36px);
+            margin: 10px 0;
+            color: var(--navy);
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e4eaf2;
+            box-shadow: 0 7px 24px rgba(23, 32, 51, 0.06);
+            transition: transform 0.25s, box-shadow 0.25s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(23, 32, 51, 0.12);
+        }
+
+        .card-image {
+            height: 190px;
+            width: 100%;
+            object-fit: cover;
+            display: block;
+            background: #dce5ed;
+        }
+
+        .card-content {
+            padding: 23px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex: 1;
+        }
+
+        .emoji {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .card h3 {
+            color: var(--navy);
+            font-size: 21px;
+            margin: 5px 0 10px;
+        }
+
+        .card p {
+            color: var(--muted);
+            line-height: 1.7;
+            margin: 0 0 22px;
+            flex: 1;
+        }
+
+        .card button {
+            background: var(--green);
+            color: white;
+            border: 0;
+            padding: 12px 17px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .card button:hover {
+            background: #10554d;
+        }
+
+        #message {
+            margin-top: 25px;
+            background: white;
+            border-left: 5px solid var(--mint);
+            border-radius: 10px;
+            padding: 18px;
+            display: none;
+            line-height: 1.6;
+        }
+
+        /* Sketch Your Dream Home remains a separate section */
+        .dream-home {
+            margin: 15px auto 60px;
+            padding: 0 7%;
+        }
+
+        .dream-home-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--navy);
+            color: white;
+            box-shadow: 0 12px 35px rgba(20, 43, 74, 0.15);
+        }
+
+        .dream-home-image {
+            min-height: 350px;
+            background:
+                url("https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85")
+                center/cover no-repeat;
+        }
+
+        .dream-home-content {
+            padding: 42px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .dream-home-content .emoji {
+            font-size: 40px;
+        }
+
+        .dream-home-content h2 {
+            font-size: clamp(27px, 3vw, 36px);
+            margin: 8px 0 14px;
+        }
+
+        .dream-home-content p {
+            color: #e3edf5;
+            line-height: 1.8;
+            margin: 0 0 25px;
+        }
+
+        .dream-home-content a {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--navy);
+            padding: 14px 23px;
+            border-radius: 9px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .dream-home-content a:hover {
+            transform: translateY(-3px);
+        }
+
+        footer {
+            background: #0e2037;
+            color: #d4deea;
+            text-align: center;
+            padding: 25px 15px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 950px) {
+            .cards {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .dream-home-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .dream-home-image {
+                min-height: 280px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 18px 5%;
+            }
+
+            .header-label {
+                font-size: 10px;
+                letter-spacing: 1px;
+            }
+
+            .hero {
+                padding: 60px 6%;
+                min-height: 400px;
+            }
+
+            main {
+                padding: 40px 5%;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .card-image {
+                height: 210px;
+            }
+
+            .dream-home {
+                padding: 0 5%;
+            }
+
+            .dream-home-content {
+                padding: 28px 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Build<span>Wise.</span></h1>
+        <div class="header-label">SMART CONSTRUCTION PLATFORM</div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="tag">PLAN SMARTER. BUILD BETTER.</div>
+
+            <h2>Your construction journey starts here.</h2>
+
+            <p>
+                Plan your building, estimate materials, manage construction
+                costs and explore building materials — all in one place.
+                Make your construction planning simpler with BuildWise.
+            </p>
+
+            <a class="hero-link" href="#tools">Explore Our Tools &darr;</a>
+        </div>
+    </section>
+
+    <main id="tools">
+        <div class="section-heading">
+            <div class="eyebrow">Your Project, Your Plan</div>
+            <h2>BuildWise Dashboard</h2>
+            <p>Choose a tool to get started with your construction project.</p>
+        </div>
+
+        <div class="cards">
+
+            <!-- Material Estimator -->
+            <div class="card">
+                <img
+                    class="card-image"
+                    src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=900&q=80"
+                    alt="Architectural construction planning"
+                    loading="lazy"
+                >
+                <div class="card-content">
+                    <div class="emoji">🧱</div>
+                    <h3>Material Estimator</h3>
+                    <p>
+                        Estimate construction material quantities for your
+                        project and plan the supplies you may need.
+                    </p>
+                    <button onclick="window.location.href='/material-estimator'">
+    Estimate Materials
+</button>
+                </div>
+            </div>
+
+            <!-- Material Marketplace -->
+            <div class="card">
+                <img
+                    class="card-image"
+                    src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80"
+                    alt="Building materials at a construction site"
+                    loading="lazy"
+                >
+                <div class="card-content">
+                    <div class="emoji">🛒</div>
+                    <h3>Material Marketplace</h3>
+                    <p>
+                        Explore construction products and prepare a
+                        material order for your building project.
+                    </p>
+                    <button onclick="window.location.href='/material-marketplace'">
+    Explore Materials
+</button>
+                </div>
+            </div>
+
+            <!-- Construction Planner -->
+            <div class="card">
+                <img
+                    class="card-image"
+                    src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80"
+                    alt="Modern building under construction"
+                    loading="lazy"
+                >
+                <div class="card-content">
+                    <div class="emoji">📅</div>
+                    <h3>Construction Planner</h3>
+                    <p>
+                        Organize building activities and view an estimated
+                        schedule for your construction work.
+                    </p>
+                   
+<button onclick="window.location.href='/construction-planner'">
+    Plan Construction
+</button>
+
+                </div>
+            </div>
+
+            <!-- Cost Calculator -->
+            <div class="card">
+                <img
+                    class="card-image"
+                    src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=900&q=80"
+                    alt="House construction and building design"
+                    loading="lazy"
+                >
+                <div class="card-content">
+                    <div class="emoji">💰</div>
+                    <h3>Cost Calculator</h3>
+                    <p>
+                        Estimate your construction budget and review
+                        projected costs for your project.
+                    </p>
+                    
+<button onclick="window.location.href='/cost-calculator'">
+    Calculate Cost
+</button>
+
+                </div>
+            </div>
+
+            <!-- Project Dashboard -->
+            <div class="card">
+                <img
+                    class="card-image"
+                    src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80"
+                    alt="Organized project planning workspace"
+                    loading="lazy"
+                >
+                <div class="card-content">
+                    <div class="emoji">📊</div>
+                    <h3>Project Dashboard</h3>
+                    <p>
+                        View project information and track your
+                        construction planning progress.
+                    </p>
+                    
+<button onclick="window.location.href='/project-dashboard'">
+    Open Project Dashboard
+</button>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div id="message" role="status" aria-live="polite"></div>
+    </main>
+
+    <!-- Separate Sketch Your Dream Home section -->
+    <section class="dream-home">
+        <div class="dream-home-inner">
+
+            <div
+                class="dream-home-image"
+                role="img"
+                aria-label="Beautiful modern home interior"
+            ></div>
+
+            <div class="dream-home-content">
+                <div class="emoji">🏡</div>
+
+                <h2>Sketch Your Dream Home</h2>
+
+                <p>
+                    Design your dream house with your own plot dimensions,
+                    bedrooms, bathrooms and floors. Generate a floor plan
+                    and customize your home's appearance.
+                </p>
+
+                <a href="/dream-home">Start Designing &rarr;</a>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        BuildWise &copy; 2026 | Smart Construction Planning
+    </footer>
+
+    <script>
+        function showTool(name) {
+            const message = document.getElementById('message');
+
+            message.style.display = 'block';
+            message.textContent = name +
+                ' selected. The interactive tool will be added in the next development steps.';
+
+            message.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
+    </script>
+
+</body>
+</html>

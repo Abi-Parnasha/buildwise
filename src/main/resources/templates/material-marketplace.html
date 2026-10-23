@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Material Marketplace | BuildWise</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#172033}
+header{background:#102a43;color:white;padding:19px 7%;display:flex;justify-content:space-between;align-items:center;gap:15px}
+header a{color:#69d5bd;text-decoration:none}
+main{max-width:1250px;margin:auto;padding:30px 20px}
+.hero{padding:30px;border-radius:16px;color:white;background:linear-gradient(120deg,#102a43,#246b83);margin-bottom:25px}
+.hero h2{font-size:30px;margin:0 0 10px}
+.hero p{line-height:1.6;color:#e3edf5;margin-bottom:0}
+.toolbar{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:22px}
+input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;background:white}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
+.card,.cart{background:white;border:1px solid #e4eaf2;border-radius:14px;overflow:hidden;box-shadow:0 5px 18px #1720330b}
+.card img{width:100%;height:145px;object-fit:cover;background:#dce7ef;display:block}
+.card-content{padding:16px}
+.category{font-size:12px;color:#176b61;font-weight:bold;text-transform:uppercase;letter-spacing:.7px}
+.card h3{margin:8px 0}
+.description{font-size:13px;line-height:1.5;color:#667085;min-height:38px}
+.price{font-size:21px;font-weight:bold;color:#102a43;margin:12px 0}
+.unit{font-size:12px;color:#667085;font-weight:normal}
+.qty{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.qty input{width:80px}
+button{border:0;border-radius:7px;padding:11px 13px;background:#176b61;color:white;font-weight:bold;cursor:pointer}
+button:hover{background:#10554d}
+.add{width:100%}
+.cart{padding:19px;position:sticky;top:15px}
+.cart h2{margin:0 0 14px;font-size:22px}
+.cart-item{padding:12px 0;border-bottom:1px solid #e4eaf2}
+.cart-item strong{display:block;margin-bottom:5px}
+.cart-item small{color:#667085}
+.cart-actions{display:flex;align-items:center;gap:6px;margin-top:8px}
+.cart-actions button{padding:5px 9px}
+.remove{background:#a83232}
+.line-total{margin-left:auto;font-weight:bold;font-size:13px}
+.total{display:flex;justify-content:space-between;font-size:19px;font-weight:bold;margin:18px 0}
+.checkout{width:100%;background:#e6a92e;color:#102a43}
+.checkout:hover{background:#d69a1f}
+.secondary{width:100%;margin-top:8px;background:#e8eef4;color:#102a43}
+.empty{color:#667085;line-height:1.5;font-size:14px}
+#notice{display:none;padding:12px;background:#e7f4f0;color:#14594f;border-radius:8px;margin:15px 0;line-height:1.5}
+#checkoutForm{display:none;margin-top:15px;border-top:1px solid #e4eaf2;padding-top:15px}
+#checkoutForm label{display:block;font-size:13px;font-weight:bold;margin:12px 0 6px}
+#checkoutForm button{width:100%;margin-top:12px}
+footer{text-align:center;padding:25px;color:#667085}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.cart{position:static}.toolbar{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <strong>BuildWise.</strong>
+  <a href="/">← Back to Dashboard</a>
+</header>
+
+<main>
+  <section class="hero">
+    <h2>🛒 Material Marketplace</h2>
+    <p>Explore construction essentials, select quantities and prepare your material order in one place.</p>
+  </section>
+
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search cement, bricks, steel..." oninput="renderProducts()">
+    <select id="category" onchange="renderProducts()">
+      <option value="All">All categories</option>
+      <option value="Cement">Cement</option>
+      <option value="Masonry">Masonry</option>
+      <option value="Steel">Steel</option>
+      <option value="Aggregates">Aggregates</option>
+      <option value="Finishing">Finishing</option>
+      <option value="Plumbing">Plumbing</option>
+    </select>
+  </div>
+
+  <div id="notice" role="status" aria-live="polite"></div>
+
+  <div class="layout">
+    <section>
+      <div class="products" id="products"></div>
+      <p id="noProducts" class="empty" style="display:none">No matching products found. Try another search or category.</p>
+    </section>
+
+    <aside class="cart">
+      <h2>🛍️ Your Cart <span id="cartCount">(0)</span></h2>
+      <div id="cartItems"><p class="empty">Your cart is empty. Add materials to get started.</p></div>
+      <div class="total"><span>Total</span><span id="grandTotal">₹0</span></div>
+      <button class="checkout" onclick="showCheckout()">Proceed to Checkout</button>
+      <button class="secondary" onclick="clearCart()">Clear Cart</button>
+
+      <form id="checkoutForm" onsubmit="placeOrder(event)">
+        <h3>Order Details</h3>
+        <label for="customer">Customer name</label>
+        <input id="customer" required maxlength="80" placeholder="Your name">
+        <label for="phone">Phone number</label>
+        <input id="phone" required type="tel" pattern="[0-9+() -]{7,20}" placeholder="Contact number">
+        <label for="address">Delivery address</label>
+        <input id="address" required maxlength="200" placeholder="Delivery address">
+        <button type="submit">Place Sample Order</button>
+      </form>
+    </aside>
+  </div>
+</main>
+
+<footer>BuildWise © 2026 | Sample marketplace — no real payments or supplier orders.</footer>
+
+<script>
+const productsData = [
+ {id:1,name:'OPC Cement',category:'Cement',unit:'50 kg bag',price:420,desc:'General-purpose cement for construction.',image:'https://images.unsplash.com/photo-1513467655676-561b7d489a88?auto=format&fit=crop&w=700&q=80'},
+ {id:2,name:'Red Clay Bricks',category:'Masonry',unit:'per brick',price:10,desc:'Traditional bricks for masonry work.',image:'https://images.unsplash.com/photo-1590073844006-33379778ae09?auto=format&fit=crop&w=700&q=80'},
+ {id:3,name:'TMT Steel Rods',category:'Steel',unit:'per kg',price:65,desc:'Reinforcement steel for building projects.',image:'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=700&q=80'},
+ {id:4,name:'M-Sand',category:'Aggregates',unit:'per m³',price:1800,desc:'Manufactured sand for construction use.',image:'https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?auto=format&fit=crop&w=700&q=80'},
+ {id:5,name:'Coarse Aggregate',category:'Aggregates',unit:'per m³',price:1600,desc:'Aggregate for concrete mixes.',image:'https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?auto=format&fit=crop&w=700&q=80'},
+ {id:6,name:'Ceramic Floor Tiles',category:'Finishing',unit:'per m²',price:550,desc:'Floor tiles for interior spaces.',image:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=700&q=80'},
+ {id:7,name:'Interior Paint',category:'Finishing',unit:'20 L bucket',price:2400,desc:'Decorative interior wall paint.',image:'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=700&q=80'},
+ {id:8,name:'PVC Plumbing Pipe',category:'Plumbing',unit:'per 3 m length',price:280,desc:'PVC pipe for plumbing installations.',image:'https://images.unsplash.com/photo-1505798577917-a65157d3320a?auto=format&fit=crop&w=700&q=80'}
+];
+
+const cart = {};
+const money = n => '₹' + Math.round(n).toLocaleString('en-IN');
+function escapeHtml(s) {
+ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function renderProducts() {
+ const q = document.getElementById('search').value.trim().toLowerCase();
+ const cat = document.getElementById('category').value;
+ const filtered = productsData.filter(p =>
+   (cat === 'All' || p.category === cat) &&
+   (p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q))
+ );
+ document.getElementById('noProducts').style.display = filtered.length ? 'none' : 'block';
+ document.getElementById('products').innerHTML = filtered.map(p => `
+   <article class="card">
+     <img src="${p.image}" alt="${escapeHtml(p.name)}" loading="lazy" onerror="this.style.display='none'">
+     <div class="card-content">
+       <div class="category">${escapeHtml(p.category)}</div>
+       <h3>${escapeHtml(p.name)}</h3>
+       <div class="description">${escapeHtml(p.desc)}</div>
+       <div class="price">${money(p.price)} <span class="unit">/ ${escapeHtml(p.unit)}</span></div>
+       <div class="qty"><label for="qty-${p.id}">Quantity</label><input id="qty-${p.id}" type="number" min="1" max="10000" step="1" value="1"></div>
+       <button class="add" onclick="addToCart(${p.id})">Add to Cart</button>
+     </div>
+   </article>`).join('');
+}
+function showNotice(message) {
+ const n = document.getElementById('notice');
+ n.textContent = message;
+ n.style.display = 'block';
+}
+function addToCart(id) {
+ const p = productsData.find(x => x.id === id);
+ const qty = Number(document.getElementById('qty-' + id).value);
+ if (!Number.isInteger(qty) || qty < 1 || qty > 10000) {
+   showNotice('Enter a whole-number quantity between 1 and 10,000.');
+   return;
+ }
+ cart[id] = (cart[id] || 0) + qty;
+ if (cart[id] > 10000) cart[id] = 10000;
+ renderCart();
+ showNotice(p.name + ' added to your cart.');
+}
+function changeQty(id, delta) {
+ cart[id] = (cart[id] || 0) + delta;
+ if (cart[id] <= 0) delete cart[id];
+ if (cart[id] > 10000) cart[id] = 10000;
+ renderCart();
+}
+function removeItem(id) { delete cart[id]; renderCart(); }
+function clearCart() {
+ Object.keys(cart).forEach(id => delete cart[id]);
+ renderCart();
+ document.getElementById('checkoutForm').style.display = 'none';
+ showNotice('Your cart has been cleared.');
+}
+function renderCart() {
+ const entries = Object.entries(cart).filter(([id,qty]) => qty > 0);
+ const count = entries.reduce((sum,[id,qty]) => sum + qty, 0);
+ const total = entries.reduce((sum,[id,qty]) => {
+   const p = productsData.find(x => x.id === Number(id));
+   return sum + p.price * qty;
+ }, 0);
+ document.getElementById('cartCount').textContent = '(' + count.toLocaleString('en-IN') + ')';
+ document.getElementById('grandTotal').textContent = money(total);
+ document.getElementById('cartItems').innerHTML = entries.length ? entries.map(([id,qty]) => {
+   const p = productsData.find(x => x.id === Number(id));
+   return `<div class="cart-item">
+     <strong>${escapeHtml(p.name)}</strong>
+     <small>${money(p.price)} × ${qty}</small>
+     <div class="cart-actions">
+       <button type="button" aria-label="Decrease ${escapeHtml(p.name)} quantity" onclick="changeQty(${p.id},-1)">−</button>
+       <span>${qty}</span>
+       <button type="button" aria-label="Increase ${escapeHtml(p.name)} quantity" onclick="changeQty(${p.id},1)">+</button>
+       <span class="line-total">${money(p.price*qty)}</span>
+       <button type="button" class="remove" aria-label="Remove ${escapeHtml(p.name)}" onclick="removeItem(${p.id})">×</button>
+     </div>
+   </div>`;
+ }).join('') : '<p class="empty">Your cart is empty. Add materials to get started.</p>';
+ if (!entries.length) document.getElementById('checkoutForm').style.display = 'none';
+}
+function showCheckout() {
+ if (!Object.keys(cart).length) {
+   showNotice('Add at least one product before checkout.');
+   return;
+ }
+ document.getElementById('checkoutForm').style.display = 'block';
+ document.getElementById('checkoutForm').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function placeOrder(event) {
+ event.preventDefault();
+ if (!Object.keys(cart).length) {
+   showNotice('Your cart is empty. Add products before placing an order.');
+   return;
+ }
+ const customer = document.getElementById('customer').value.trim();
+ if (!customer) return;
+ const summary = Object.entries(cart).map(([id,qty]) => {
+   const p = productsData.find(x => x.id === Number(id));
+   return p.name + ' × ' + qty;
+ }).join(', ');
+ const total = Object.entries(cart).reduce((sum,[id,qty]) =>
+   sum + productsData.find(x => x.id === Number(id)).price * qty, 0);
+ showNotice('Sample order confirmed for ' + customer + '. Items: ' + summary + '. Total: ' + money(total) + '. No real payment or supplier order was made.');
+ Object.keys(cart).forEach(id => delete cart[id]);
+ renderCart();
+ document.getElementById('checkoutForm').reset();
+ document.getElementById('checkoutForm').style.display = 'none';
+}
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>

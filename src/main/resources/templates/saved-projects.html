@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Projects - BuildWise</title>
+</head>
+<body>
+    <h1>BuildWise - Saved Projects</h1>
+
+    <p th:if="${#lists.isEmpty(projects)}">
+        No saved projects yet.
+    </p>
+
+    <table th:if="${not #lists.isEmpty(projects)}" border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Project Name</th>
+                <th>Location</th>
+                <th>Area</th>
+                <th>Floors</th>
+                <th>Budget (₹)</th>
+                <th>Spent (₹)</th>
+                <th>Progress (%)</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="project : ${projects}">
+                <td th:text="${project.projectName}"></td>
+                <td th:text="${project.location}"></td>
+                <td th:text="${project.area}"></td>
+                <td th:text="${project.floors}"></td>
+                <td th:text="${project.budget}"></td>
+                <td th:text="${project.spent}"></td>
+                <td th:text="${project.progress}"></td>
+                <td th:text="${project.status}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><a href="/project-dashboard">Back to Project Dashboard</a></p>
+</body>
+</html>

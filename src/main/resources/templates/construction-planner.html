@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Construction Planner | BuildWise</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#172033}
+header{background:#102a43;color:white;padding:20px 7%;display:flex;justify-content:space-between;align-items:center}
+header a{color:#69d5bd;text-decoration:none}
+main{max-width:1150px;margin:auto;padding:28px 20px}
+.hero{background:linear-gradient(120deg,#102a43,#246b83);color:white;padding:28px;border-radius:15px;margin-bottom:22px}
+.hero h1{margin-top:0}
+.hero p{line-height:1.6;color:#e5edf5}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-bottom:22px}
+.stat,.panel{background:white;border:1px solid #e3e9f1;border-radius:12px;padding:18px}
+.stat span{color:#667085;font-size:14px}
+.stat h2{margin:10px 0 0;color:#176b61}
+.panel{margin-bottom:22px}
+.panel h2{margin-top:0}
+form .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+label{display:block;font-size:13px;font-weight:bold;margin-bottom:7px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:7px;font-size:14px}
+button{border:0;border-radius:7px;padding:11px 15px;background:#176b61;color:white;font-weight:bold;cursor:pointer}
+button:hover{background:#10554d}
+.primary{margin-top:16px}
+.task-list{display:grid;gap:12px}
+.task{border:1px solid #e1e7ef;border-radius:10px;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.task h3{margin:0 0 8px}
+.meta{font-size:13px;color:#667085;line-height:1.8}
+.task-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.task-actions select{min-width:135px}
+.delete{background:#a83232}
+progress{width:100%;height:14px;accent-color:#176b61}
+.bar-label{display:flex;justify-content:space-between;gap:10px;font-size:14px;margin:10px 0}
+.empty{color:#667085;line-height:1.6}
+.notice{display:none;padding:12px;border-radius:7px;background:#e7f4f0;color:#14594f;margin-bottom:15px}
+.timeline-item{border-left:3px solid #176b61;padding:2px 0 15px 14px;margin-left:6px}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-item strong{display:block;margin-bottom:5px}
+@media(max-width:650px){.task{grid-template-columns:1fr}.task-actions select{flex:1}}
+</style>
+</head>
+<body>
+<header>
+  <strong>BuildWise.</strong>
+  <a href="/">← Back to Dashboard</a>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>🏗️ Construction Planner</h1>
+    <p>Organize construction activities, assign schedules, track task status and monitor your project's progress in one place.</p>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><span>Total Tasks</span><h2 id="totalTasks">0</h2></div>
+    <div class="stat"><span>Completed</span><h2 id="completedTasks">0</h2></div>
+    <div class="stat"><span>In Progress</span><h2 id="activeTasks">0</h2></div>
+    <div class="stat"><span>Overall Progress</span><h2 id="overallProgress">0%</h2></div>
+  </div>
+
+  <section class="panel">
+    <h2>Project Progress</h2>
+    <div class="bar-label"><span>Completion</span><strong id="progressText">0%</strong></div>
+    <progress id="progressBar" value="0" max="100"></progress>
+    <p class="empty">Progress is calculated from the proportion of tasks marked Completed.</p>
+  </section>
+
+  <section class="panel">
+    <h2>➕ Add Construction Task</h2>
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+    <form id="taskForm" onsubmit="addTask(event)">
+      <div class="fields">
+        <div>
+          <label for="taskName">Task name</label>
+          <input id="taskName" required maxlength="100" placeholder="e.g. Foundation work">
+        </div>
+        <div>
+          <label for="startDate">Start date</label>
+          <input id="startDate" type="date" required>
+        </div>
+        <div>
+          <label for="endDate">End date</label>
+          <input id="endDate" type="date" required>
+        </div>
+        <div>
+          <label for="taskStatus">Initial status</label>
+          <select id="taskStatus">
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>Completed</option>
+            <option>On Hold</option>
+          </select>
+        </div>
+        <div>
+          <label for="assignedTo">Assigned to (optional)</label>
+          <input id="assignedTo" maxlength="80" placeholder="e.g. Site engineer">
+        </div>
+      </div>
+      <button class="primary" type="submit">Add Task</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>📋 Construction Task List</h2>
+    <div id="taskList" class="task-list"></div>
+  </section>
+
+  <section class="panel">
+    <h2>🗓️ Construction Timeline</h2>
+    <div id="timeline"></div>
+  </section>
+</main>
+
+<script>
+let nextId = 1;
+let tasks = [
+ {id:nextId++,name:'Site Preparation',start:dateOffset(0),end:dateOffset(3),status:'Not Started',assigned:'Site team'},
+ {id:nextId++,name:'Foundation Work',start:dateOffset(4),end:dateOffset(12),status:'Not Started',assigned:'Civil engineer'},
+ {id:nextId++,name:'Structural Construction',start:dateOffset(13),end:dateOffset(35),status:'Not Started',assigned:'Construction team'},
+ {id:nextId++,name:'Electrical and Plumbing',start:dateOffset(36),end:dateOffset(45),status:'Not Started',assigned:'Technicians'},
+ {id:nextId++,name:'Painting and Finishing',start:dateOffset(46),end:dateOffset(55),status:'Not Started',assigned:'Finishing team'}
+];
+const statuses = ['Not Started','In Progress','Completed','On Hold'];
+
+function dateOffset(days) {
+ const d = new Date();
+ d.setDate(d.getDate()+days);
+ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function safe(s) {
+ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function readableDate(s) {
+ if(!s) return 'Not set';
+ const d = new Date(s+'T00:00:00');
+ return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+}
+function showNotice(message) {
+ const n=document.getElementById('notice');
+ n.textContent=message;
+ n.style.display='block';
+}
+function addTask(event) {
+ event.preventDefault();
+ const name=document.getElementById('taskName').value.trim();
+ const start=document.getElementById('startDate').value;
+ const end=document.getElementById('endDate').value;
+ const assigned=document.getElementById('assignedTo').value.trim();
+ const status=document.getElementById('taskStatus').value;
+ if(!name){showNotice('Please enter a task name.');return;}
+ if(end<start){showNotice('End date must be the same as or later than the start date.');return;}
+ tasks.push({id:nextId++,name,start,end,status,assigned});
+ document.getElementById('taskForm').reset();
+ render();
+ showNotice('Task added successfully.');
+}
+function updateStatus(id,value) {
+ const task=tasks.find(t=>t.id===id);
+ if(task && statuses.includes(value)) task.status=value;
+ render();
+}
+function deleteTask(id) {
+ tasks=tasks.filter(t=>t.id!==id);
+ render();
+ showNotice('Task removed from the planner.');
+}
+function render() {
+ const total=tasks.length;
+ const completed=tasks.filter(t=>t.status==='Completed').length;
+ const active=tasks.filter(t=>t.status==='In Progress').length;
+ const percent=total?Math.round(completed/total*100):0;
+ document.getElementById('totalTasks').textContent=total;
+ document.getElementById('completedTasks').textContent=completed;
+ document.getElementById('activeTasks').textContent=active;
+ document.getElementById('overallProgress').textContent=percent+'%';
+ document.getElementById('progressText').textContent=percent+'%';
+ document.getElementById('progressBar').value=percent;
+
+ const sorted=[...tasks].sort((a,b)=>a.start.localeCompare(b.start));
+ document.getElementById('taskList').innerHTML=sorted.length?sorted.map(t=>`
+   <article class="task">
+     <div>
+       <h3>${safe(t.name)}</h3>
+       <div class="meta">📅 ${readableDate(t.start)} – ${readableDate(t.end)}<br>
+       👷 Assigned to: ${safe(t.assigned||'Not assigned')}</div>
+     </div>
+     <div class="task-actions">
+       <select aria-label="Status for ${safe(t.name)}" onchange="updateStatus(${t.id},this.value)">
+         ${statuses.map(s=>`<option ${s===t.status?'selected':''}>${s}</option>`).join('')}
+       </select>
+       <button type="button" class="delete" onclick="deleteTask(${t.id})">Delete</button>
+     </div>
+   </article>`).join(''):'<p class="empty">No tasks yet. Use the form above to add your first construction task.</p>';
+
+ document.getElementById('timeline').innerHTML=sorted.length?sorted.map(t=>`
+   <div class="timeline-item">
+     <strong>${safe(t.name)}</strong>
+     <div class="meta">${readableDate(t.start)} – ${readableDate(t.end)} · ${safe(t.status)}</div>
+   </div>`).join(''):'<p class="empty">Your timeline will appear here after you add tasks.</p>';
+}
+render();
+</script>
+</body>
+</html>
